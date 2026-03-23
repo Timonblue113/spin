@@ -123,21 +123,7 @@ input {
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-// 🔥 CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
-  authDomain: "bluespin-34b50.firebaseapp.com",
-  databaseURL: "https://bluespin-34b50-default-rtdb.firebaseio.com",
-  projectId: "bluespin-34b50"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// 🎁 DATA
+// ===== 1. KHAI BÁO DATA TRƯỚC =====
 const DEFAULT_PRIZES = [
     { label: "Gối", qty: 10, weight: 7 },
     { label: "Rửa xe", qty: 20, weight: 14 },
@@ -150,25 +136,43 @@ const DEFAULT_PRIZES = [
 let prizes = DEFAULT_PRIZES;
 let history = [];
 
-// 🔄 LOAD DATA
-onValue(ref(db, 'prizes'), s => {
-    if(s.exists()){ prizes = s.val(); draw(); }
+// ===== 2. FIREBASE =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
+  authDomain: "bluespin-34b50.firebaseapp.com",
+  databaseURL: "https://bluespin-34b50-default-rtdb.firebaseio.com",
+  projectId: "bluespin-34b50"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// LOAD REALTIME
+onValue(ref(db, 'prizes'), (s)=>{
+    if(s.exists()){
+        prizes = s.val();
+        draw();
+    }
 });
-onValue(ref(db, 'history'), s => {
+onValue(ref(db, 'history'), (s)=>{
     if(s.exists()) history = s.val();
 });
 
+// INIT DATA
 get(ref(db,'prizes')).then(s=>{
     if(!s.exists()) set(ref(db,'prizes'), prizes);
 });
 
-// 💾 SAVE
+// SAVE
 function saveData(){
     set(ref(db,'prizes'), prizes);
     set(ref(db,'history'), history);
 }
 
-// 🎡 DRAW
+// ===== 3. VẼ =====
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 
@@ -181,6 +185,7 @@ function draw(){
         ctx.moveTo(350,350);
         ctx.arc(350,350,300,i*arc,(i+1)*arc);
         ctx.fill();
+
         ctx.save();
         ctx.translate(350,350);
         ctx.rotate(i*arc+arc/2);
@@ -191,7 +196,7 @@ function draw(){
 }
 draw();
 
-// 🧠 LOGIC
+// ===== 4. LOGIC =====
 let spinning=false, ready=false, currentUser={};
 
 document.getElementById("spinBtn").onclick=()=>{
@@ -201,13 +206,24 @@ document.getElementById("spinBtn").onclick=()=>{
 };
 
 window.confirmForm=()=>{
-    currentUser.name=name.value;
-    currentUser.phone=phone.value;
+    let nameInput = document.getElementById("name");
+    let phoneInput = document.getElementById("phone");
+
+    if(!nameInput.value || !phoneInput.value){
+        alert("Nhập đủ!");
+        return;
+    }
+
+    currentUser.name = nameInput.value;
+    currentUser.phone = phoneInput.value;
+
     ready=true;
-    formPopup.style.display="none";
+    document.getElementById("formPopup").style.display="none";
 };
 
-window.closeForm=()=> formPopup.style.display="none";
+window.closeForm=()=>{
+    document.getElementById("formPopup").style.display="none";
+};
 
 function spin(){
     spinning=true;
@@ -239,15 +255,15 @@ function spin(){
 
         saveData();
 
-        resultText.innerText=prizes[index].label;
-        resultPopup.style.display="flex";
+        document.getElementById("resultText").innerText=prizes[index].label;
+        document.getElementById("resultPopup").style.display="flex";
 
         spinning=false;
         ready=false;
     },5000);
 }
 
-// 📊 EXPORT
+// EXPORT
 window.addEventListener('keydown', e=>{
     if(e.key==="F9"){
         let wb=XLSX.utils.book_new();
