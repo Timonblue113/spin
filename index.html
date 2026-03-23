@@ -360,7 +360,8 @@ function spin(){
 
     }, 5000);
 }
-
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
 function closeResult(){
     document.getElementById("resultPopup").style.display="none";
     document.getElementById("infoBox").style.display="none";
@@ -383,6 +384,30 @@ window.addEventListener('keydown', (e) => {
         XLSX.writeFile(wb, "BaoCao_QuayThuong.xlsx");
     }
 });
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
+  authDomain: "bluespin-34b50.firebaseapp.com",
+  projectId: "bluespin-34b50",
+  storageBucket: "bluespin-34b50.firebasestorage.app",
+  messagingSenderId: "772568559030",
+  appId: "1:772568559030:web:9e7387b4ed593ca5136517",
+  measurementId: "G-0KCLS2V19B"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+
+	
 </script>
 </body>
 </html>
