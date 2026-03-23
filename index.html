@@ -194,7 +194,9 @@ input {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+const DEFAULT_PRIZES = [...]
+let prizes = DEFAULT_PRIZES;
+let history = [];
 const firebaseConfig = {
   apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
   authDomain: "bluespin-34b50.firebaseapp.com",
