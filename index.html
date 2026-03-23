@@ -346,6 +346,7 @@ function spin(){
 
         localStorage.setItem('wheel_prizes', JSON.stringify(prizes));
         localStorage.setItem('wheel_history', JSON.stringify(history));
+		saveFirebase();
 
         // 🎯 đổi màu mũi tên
         let arrow = document.getElementById("arrow");
@@ -407,7 +408,10 @@ onValue(ref(db,'prizes'), s=>{
 });
 
 onValue(ref(db,'history'), s=>{
-    if(s.exists()) history = s.val();
+    if(s.exists()){
+        let data = s.val();
+        history = Object.values(data); // 🔥 convert về array
+    }
 });
 
 // save
