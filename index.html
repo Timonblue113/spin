@@ -343,7 +343,8 @@ function spin(){
             "SĐT": currentUser.phone,
             "Quà": winItem.label
         });
-
+        history.push(newData);
+		saveFirebase(newData);
         localStorage.setItem('wheel_prizes', JSON.stringify(prizes));
         localStorage.setItem('wheel_history', JSON.stringify(history));
 		saveFirebase();
@@ -387,7 +388,14 @@ window.addEventListener('keydown', (e) => {
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+window.saveFirebase = (newItem)=>{
+    set(ref(db,'prizes'), prizes); // vẫn set bình thường
+
+    // 🔥 chỉ push 1 dòng mới
+    if(newItem){
+        push(ref(db,'history'), newItem);
+    }
+};
 
 const firebaseConfig = {
   apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
