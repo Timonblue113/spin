@@ -191,7 +191,30 @@ input {
     </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
+  authDomain: "bluespin-34b50.firebaseapp.com",
+  databaseURL: "https://bluespin-34b50-default-rtdb.firebaseio.com",
+  projectId: "bluespin-34b50"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+
+
+
+	
+
+
+
+
+
+	
 const DEFAULT_PRIZES = [
     { label: "Gối Tựa Đầu", qty: 10, weight: 7 },
     { label: "Phiếu Rửa Xe", qty: 20, weight: 14 },
@@ -203,8 +226,8 @@ const DEFAULT_PRIZES = [
     { label: "Khăn Lau Xe", qty: 57, weight: 34 } // Thêm cho đủ 8 nan như hình
 ];
 
-let prizes = JSON.parse(localStorage.getItem('wheel_prizes')) || DEFAULT_PRIZES;
-let history = JSON.parse(localStorage.getItem('wheel_history')) || [];
+let prizes = DEFAULT_PRIZES;
+let history = [];
 
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
