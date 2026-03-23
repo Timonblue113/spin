@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Lucky Wheel PRO MAX</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <style>
+/* ===== BODY ===== */
 body {
     margin: 0;
     font-family: Arial;
@@ -16,6 +16,7 @@ body {
     overflow: hidden;
 }
 
+/* ===== WHEEL ===== */
 #wheelContainer {
     position: absolute;
     right: 200px;
@@ -28,78 +29,142 @@ body {
 canvas {
     width: 700px;
     height: 700px;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
 }
 
+/* ===== SPIN BUTTON ===== */
 #spinBtn {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    
     width: 140px;
     height: 140px;
+    
     border-radius: 50%;
     font-size: 24px;
     font-weight: bold;
+    
     background: radial-gradient(circle, #ffcc70, #ff3c00);
     color: #fff;
     border: 5px solid #fff;
+    
     cursor: pointer;
+    z-index: 10;
 }
 
+/* ===== ARROW ===== */
 #arrow {
     position: absolute;
     right: -20px;
     top: 50%;
     transform: translateY(-50%);
+    
+    width: 0;
+    height: 0;
+    
     border-top: 25px solid transparent;
     border-bottom: 25px solid transparent;
     border-right: 40px solid gold;
+    
+    z-index: 20;
+    transition: border-right-color 0.3s;
 }
 
+/* ===== POPUP ===== */
 .popup {
     position: fixed;
+    top: 0;
+    left: 0;
+    
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    
+    background: rgba(0, 0, 0, 0.7);
+    
     display: none;
     justify-content: center;
     align-items: center;
+    
+    z-index: 999;
 }
 
+/* ===== BOX ===== */
 .box {
     background: #fff;
     padding: 30px;
     width: 400px;
+    
     border-radius: 15px;
     text-align: center;
 }
 
+/* ===== INPUT ===== */
 input {
     width: 90%;
     padding: 12px;
     margin: 10px 0;
+    
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
+/* ===== BUTTON ===== */
 .btn {
     padding: 12px 25px;
+    margin: 10px 5px;
+    
     border: none;
+    border-radius: 5px;
+    
     color: #fff;
+    font-weight: bold;
     cursor: pointer;
 }
-.green { background: green; }
-.red { background: red; }
 
+.green { background: #28a745; }
+.red   { background: #dc3545; }
+
+/* ===== INFO BOX ===== */
+#infoBox {
+    position: absolute;
+    top: 40%;
+    left: 200px;
+    transform: translateY(-50%);
+    
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    min-width: 350px;
+    
+    border-radius: 15px;
+    display: none;
+}
+
+/* ===== RESULT BOX ===== */
 #resultBox {
     background: #b30000;
+    width: 500px;
     padding: 40px;
+    
     border-radius: 20px;
+    text-align: center;
     color: #fff;
+    
+    position: relative;
     border: 5px solid gold;
 }
 </style>
+</style>
 </head>
-
 <body>
+
+<div id="infoBox">
+    <h2 style="color:#b30000; margin-top:0;">SẴN SÀNG!</h2>
+    <p id="infoName"></p><p id="infoPhone"></p><hr>
+    <small>Bạn có 1 lược quay</small>
+</div>
 
 <div id="wheelContainer">
     <div id="arrow"></div>
@@ -109,33 +174,33 @@ input {
 
 <div id="formPopup" class="popup">
     <div class="box">
-        <h3>Nhập thông tin</h3>
-        <input id="name" placeholder="Tên">
-        <input id="phone" placeholder="SĐT">
+        <h3>Nhập thông tin nhận quà</h3>
+        <input id="name" placeholder="Họ và tên">
+        <input id="phone" placeholder="Số điện thoại" type="tel">
         <br>
-        <button class="btn green" onclick="confirmForm()">OK</button>
-        <button class="btn red" onclick="closeForm()">Hủy</button>
+        <button class="btn green" onclick="confirmForm()">XÁC NHẬN</button>
+        <button class="btn red" onclick="closeForm()">HỦY</button>
     </div>
 </div>
 
 <div id="resultPopup" class="popup">
     <div id="resultBox">
-        <h1>🎁 TRÚNG THƯỞNG</h1>
-        <div id="resultText" style="font-size:40px;color:yellow"></div>
+        <div class="closeBtn" onclick="closeResult()" style="position:absolute; top:10px; right:20px; cursor:pointer;">✖</div>
+        <h1 style="font-size:28px;">🎁 CHÚC MỪNG BẠN ĐÃ TRÚNG THƯỞNG</h1>
+		<div id="resultText" style="font-size:49px; font-family:'Britannic Bold'; color:yellow;"></div>
     </div>
 </div>
 
 <script>
-// ===== CODE GỐC (GIỮ NGUYÊN) =====
 const DEFAULT_PRIZES = [
     { label: "Gối Tựa Đầu", qty: 10, weight: 7 },
     { label: "Phiếu Rửa Xe", qty: 20, weight: 14 },
     { label: "Khăn Lau Xe", qty: 57, weight: 34 },
     { label: "DÙ HONDA", qty: 10, weight: 7 },
     { label: "Nước Hoa", qty: 3, weight: 2 },
-    { label: "Voucher Phụ Kiện", qty: 1, weight: 1 },
+	{ label: "Voucher Phụ Kiện", qty: 1, weight: 1 },
     { label: "Voucher Làm Đẹp Xe", qty: 2, weight: 1 },
-    { label: "Khăn Lau Xe", qty: 57, weight: 34 }
+    { label: "Khăn Lau Xe", qty: 57, weight: 34 } // Thêm cho đủ 8 nan như hình
 ];
 
 let prizes = JSON.parse(localStorage.getItem('wheel_prizes')) || DEFAULT_PRIZES;
@@ -148,6 +213,8 @@ let ready = false;
 let currentUser = { name: "", phone: "" };
 
 function draw(){
+    let size = 350;
+    let center = 350;
     canvas.width = 700;
     canvas.height = 700;
     let arc = Math.PI*2/prizes.length;
@@ -155,17 +222,40 @@ function draw(){
     for(let i=0; i<prizes.length; i++){
         ctx.beginPath();
         ctx.fillStyle = i%2==0 ? "#c1121f" : "#ffffff";
-        ctx.moveTo(350,350);
-        ctx.arc(350,350,300,i*arc,(i+1)*arc);
+        ctx.moveTo(center,center);
+        ctx.arc(center,center,size,i*arc,(i+1)*arc);
         ctx.fill();
 
         ctx.save();
-        ctx.translate(350,350);
+        ctx.translate(center,center);
         ctx.rotate(i*arc + arc/2);
         ctx.fillStyle = i%2==0 ? "#fff" : "#c1121f";
-        ctx.fillText(prizes[i].label,250,10);
+        ctx.font = "bold 25px Britannic Bold"; 
+        ctx.textAlign = "right";
+        // DÒNG BẠN CẦN SỬA ĐÂY: Đã bỏ phần qty, viết đúng cú pháp
+        ctx.fillText(prizes[i].label, size - 40, 10);
         ctx.restore();
     }
+
+    // Viền vàng
+	// 🔴 Viền ngoài
+
+// ⚪ Viền trong (cái bạn đang có)
+ctx.beginPath();
+ctx.lineWidth = 4;
+ctx.strokeStyle = "gold";
+ctx.arc(center, center, size - 1, 0, Math.PI * 2);
+ctx.stroke();
+ctx.beginPath();
+ctx.lineWidth = 8;
+ctx.strokeStyle = "red";
+ctx.arc(center, center, size - 5, 0, Math.PI * 2);
+ctx.stroke();
+ctx.beginPath();
+ctx.lineWidth = 4;
+ctx.strokeStyle = "white";
+ctx.arc(center, center, size - 10, 0, Math.PI * 2);
+ctx.stroke();
 }
 draw();
 
@@ -178,59 +268,122 @@ document.getElementById("spinBtn").onclick = ()=>{
 function confirmForm(){
     let name = document.getElementById("name").value;
     let phone = document.getElementById("phone").value;
-    if(!name || !phone) return alert("Nhập đủ!");
+    if(!name || !phone) return alert("Vui lòng nhập đủ!");
     currentUser = { name, phone };
     document.getElementById("formPopup").style.display="none";
+    document.getElementById("infoName").innerText="Khách: "+name;
+    document.getElementById("infoPhone").innerText="SĐT: "+phone;
+    document.getElementById("infoBox").style.display="block";
     ready = true;
 }
 
 function spin(){
     if (spinning) return;
 
-    let totalWeight = prizes.reduce((sum,p)=> sum+(p.qty>0?p.weight:0),0);
-    let r=Math.random()*totalWeight, sum=0, index=0;
+    // ❗ Check hết quà
+    let totalQty = prizes.reduce((sum, p) => sum + p.qty, 0);
+    if (totalQty <= 0) {
+        alert("Hết quà rồi!");
+        return;
+    }
 
-    for(let i=0;i<prizes.length;i++){
-        if(prizes[i].qty>0){
-            sum+=prizes[i].weight;
-            if(r<=sum){ index=i; break; }
+    spinning = true;
+
+    // 🎯 Tính tổng weight (chỉ tính quà còn)
+    let totalWeight = prizes.reduce((sum, p) => {
+        return sum + (p.qty > 0 ? p.weight : 0);
+    }, 0);
+
+    let randomNum = Math.random() * totalWeight;
+    let weightSum = 0;
+
+    let winItem = null;
+    let resultIndex = -1;
+
+    // 🔥 Chọn quà + lấy luôn index (FIX LỖI)
+    for (let i = 0; i < prizes.length; i++) {
+        if (prizes[i].qty > 0) {
+            weightSum += prizes[i].weight;
+
+            if (randomNum <= weightSum) {
+                winItem = prizes[i];
+                resultIndex = i; // ✅ lấy index tại đây
+                break;
+            }
         }
     }
 
-    canvas.style.transition="5s";
-    canvas.style.transform=`rotate(${360*10 + (360-(index*(360/prizes.length)))}deg)`;
+    // ❗ fallback (tránh null)
+    if (resultIndex === -1) {
+        spinning = false;
+        return;
+    }
 
-    setTimeout(()=>{
-        prizes[index].qty--;
+    // 🎡 Tính góc quay
+    let arc = 360 / prizes.length;
+    let stopAngle = 360 - (resultIndex * arc) - (arc / 2);
+    let totalRotate = 360 * 10 + stopAngle;
 
+    // 🎬 Animation
+    canvas.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.15, 1)";
+    canvas.style.transform = `rotate(${totalRotate}deg)`;
+
+    // ⏱ Sau khi quay xong
+    setTimeout(() => {
+
+        // ❗ chống âm số
+        if (winItem.qty > 0) {
+            winItem.qty--;
+        }
+
+        // 💾 lưu dữ liệu
         history.push({
-            time:new Date().toLocaleString(),
-            name:currentUser.name,
-            phone:currentUser.phone,
-            prize:prizes[index].label
+            "Thời gian": new Date().toLocaleString(),
+            "Tên": currentUser.name,
+            "SĐT": currentUser.phone,
+            "Quà": winItem.label
         });
 
         localStorage.setItem('wheel_prizes', JSON.stringify(prizes));
         localStorage.setItem('wheel_history', JSON.stringify(history));
 
-        // 🔥 FIREBASE SAVE
-        if(window.saveFirebase) window.saveFirebase();
+        // 🎯 đổi màu mũi tên
+        let arrow = document.getElementById("arrow");
+        arrow.style.borderRightColor = (resultIndex % 2 === 0) ? "#c1121f" : "#ffffff";
 
-        document.getElementById("resultText").innerText=prizes[index].label;
-        document.getElementById("resultPopup").style.display="flex";
+        // 🎁 hiện kết quả
+        document.getElementById("resultText").innerText = winItem.label;
+        document.getElementById("resultPopup").style.display = "flex";
 
-        spinning=false;
-        ready=false;
-    },5000);
+        spinning = false;
+        ready = false;
+
+    }, 5000);
 }
 
-function closeForm(){
-    document.getElementById("formPopup").style.display="none";
+function closeResult(){
+    document.getElementById("resultPopup").style.display="none";
+    document.getElementById("infoBox").style.display="none";
+    canvas.style.transition = "none";
+    canvas.style.transform = "rotate(0deg)";
+    document.getElementById("arrow").style.borderRightColor = "red";
+	document.getElementById("name").value = "";
+    document.getElementById("phone").value = "";
+    draw();
 }
 
-// ===== FIREBASE (THÊM) =====
+function closeForm(){ document.getElementById("formPopup").style.display="none"; }
+
+// Phím F9 xuất báo cáo
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'F9') {
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(history), "Khách hàng");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prizes), "Tồn kho");
+        XLSX.writeFile(wb, "BaoCao_QuayThuong.xlsx");
+    }
+});
 </script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
