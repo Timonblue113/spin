@@ -212,9 +212,17 @@ function spin(){
 
     },5000);
 }
+function closeForm(){ document.getElementById("formPopup").style.display="none"; }
 
-function closeForm(){formPopup.style.display="none";}
-resultPopup.onclick=()=>resultPopup.style.display="none";
+// Phím F9 xuất báo cáo
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'F9') {
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(history), "Khách hàng");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prizes), "Tồn kho");
+        XLSX.writeFile(wb, "BaoCao_QuayThuong.xlsx");
+    }
+});
 </script>
 
 <!-- FIREBASE -->
