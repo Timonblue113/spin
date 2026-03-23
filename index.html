@@ -204,8 +204,36 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+onValue(ref(db, 'prizes'), (snapshot) => {
+    if (snapshot.exists()) {
+        prizes = snapshot.val();
+        draw();
+    }
+});
 
+onValue(ref(db, 'history'), (snapshot) => {
+    if (snapshot.exists()) {
+        history = snapshot.val();
+    }
+});
+function saveData(){
+    set(ref(db, 'prizes'), prizes);
+    set(ref(db, 'history'), history);
+}
+get(ref(db, 'prizes')).then(snapshot => {
+    if(snapshot.exists()){
+        prizes = snapshot.val();
+        draw();
+    } else {
+        set(ref(db, 'prizes'), prizes);
+    }
+});
 
+get(ref(db, 'history')).then(snapshot => {
+    if(snapshot.exists()){
+        history = snapshot.val();
+    }
+});
 
 
 	
@@ -367,8 +395,7 @@ function spin(){
             "Quà": winItem.label
         });
 
-        localStorage.setItem('wheel_prizes', JSON.stringify(prizes));
-        localStorage.setItem('wheel_history', JSON.stringify(history));
+       saveData();
 
         // 🎯 đổi màu mũi tên
         let arrow = document.getElementById("arrow");
@@ -383,41 +410,6 @@ function spin(){
 
     }, 5000);
 }
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-function closeResult(){
-    document.getElementById("resultPopup").style.display="none";
-    document.getElementById("infoBox").style.display="none";
-    canvas.style.transition = "none";
-    canvas.style.transform = "rotate(0deg)";
-    document.getElementById("arrow").style.borderRightColor = "red";
-	document.getElementById("name").value = "";
-    document.getElementById("phone").value = "";
-    draw();
-}
-
-function closeForm(){ document.getElementById("formPopup").style.display="none"; }
-
-// Phím F9 xuất báo cáo
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'F9') {
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(history), "Khách hàng");
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prizes), "Tồn kho");
-        XLSX.writeFile(wb, "BaoCao_QuayThuong.xlsx");
-    }
-});
-const firebaseConfig = {
-  apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
-  authDomain: "bluespin-34b50.firebaseapp.com",
-  projectId: "bluespin-34b50",
-  storageBucket: "bluespin-34b50.firebasestorage.app",
-  messagingSenderId: "772568559030",
-  appId: "1:772568559030:web:9e7387b4ed593ca5136517",
-  measurementId: "G-0KCLS2V19B"
-};
-
-	
 </script>
 </body>
 </html>
