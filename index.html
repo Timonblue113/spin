@@ -337,14 +337,15 @@ function spin(){
         }
 
         // 💾 lưu dữ liệu
-        history.push({
-            "Thời gian": new Date().toLocaleString(),
-            "Tên": currentUser.name,
-            "SĐT": currentUser.phone,
-            "Quà": winItem.label
-        });
-        history.push(newData);
-		saveFirebase(newData);
+        let newData = {
+    "Thời gian": new Date().toLocaleString(),
+    "Tên": currentUser.name,
+    "SĐT": currentUser.phone,
+    "Quà": winItem.label
+};
+
+history.push(newData);
+saveFirebase(newData);
         localStorage.setItem('wheel_prizes', JSON.stringify(prizes));
         localStorage.setItem('wheel_history', JSON.stringify(history));
 		saveFirebase();
@@ -423,10 +424,6 @@ onValue(ref(db,'history'), s=>{
 });
 
 // save
-window.saveFirebase = ()=>{
-    set(ref(db,'prizes'), prizes);
-    set(ref(db,'history'), history);
-};
 </script>
 
 </body>
