@@ -316,10 +316,11 @@ function closeResult() {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// ĐÃ CẬP NHẬT THEO HÌNH CỦA BẠN (Asia-Southeast1)
 const firebaseConfig = {
   apiKey: "AIzaSyCm8ejT3uH_SWx7HqRke7ICxSCLpHvWNlg",
   authDomain: "bluespin-34b50.firebaseapp.com",
-  databaseURL: "https://bluespin-34b50-default-rtdb.firebaseio.com",
+  databaseURL: "https://bluespin-34b50-default-rtdb.asia-southeast1.firebasedatabase.app", // <--- Quan trọng nhất là chỗ này
   projectId: "bluespin-34b50"
 };
 
@@ -330,30 +331,32 @@ const db = getDatabase(app);
 onValue(ref(db, '/'), (snapshot) => {
     const data = snapshot.val();
     
-    // Nếu Firebase trống, đẩy DEFAULT_PRIZES lên
+    // Nếu Firebase trống hoàn toàn, mình chủ động đẩy data lên 1 lần duy nhất
     if (!data || !data.prizes) {
+        console.log("Database trống, đang khởi tạo dữ liệu mẫu...");
         set(ref(db, 'prizes'), DEFAULT_PRIZES);
         set(ref(db, 'history'), []);
         return;
     }
 
-    // Chỉ cập nhật khi máy khách này KHÔNG đang quay
+    // Cập nhật vào máy khách nếu không đang trong vòng quay
     if (!window.isSpinningLock) {
         prizes = data.prizes;
         history = data.history || [];
         localStorage.setItem('wheel_prizes', JSON.stringify(prizes));
         localStorage.setItem('wheel_history', JSON.stringify(history));
         draw(); 
+        console.log("Đã đồng bộ Realtime từ Singapore!");
     }
 });
 
-// 2. Hàm lưu dữ liệu (được gọi từ script chính sau khi quay xong)
+// 2. Hàm lưu dữ liệu (được gọi từ code xử lý Spin)
 window.saveFirebase = () => {
     set(ref(db, 'prizes'), prizes);
     set(ref(db, 'history'), history);
 };
 
-// 3. Phím tắt F9 xuất báo cáo Excel
+// 3. F9 để tải file Excel
 window.addEventListener('keydown', (e) => {
     if (e.key === 'F9') {
         const wb = XLSX.utils.book_new();
